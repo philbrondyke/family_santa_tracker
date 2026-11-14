@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NORAD Santa Tracker – Flight Plan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#02100a;--panel:#041a10;--line:#0e5a35;--g:#39ff88;--gd:#1f9c58;--r:#ff3b3b;--a:#ffc94a;--sea:#031a14;--land:#0b3d28;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--g);font-family:'Share Tech Mono','Courier New',monospace;font-size:14px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+h1{margin:0;font:800 clamp(18px,4vw,28px) Orbitron,'Courier New',monospace;letter-spacing:.08em;text-shadow:0 0 12px var(--g)}
+h1 span{color:var(--r);text-shadow:0 0 12px var(--r)}
+.sub{color:var(--gd);font-size:12px;letter-spacing:.12em}
+#st{border:1px solid var(--g);padding:4px 10px;letter-spacing:.15em;font-size:12px}
+main{max-width:1200px;margin:0 auto;padding:12px}
+#mw{position:relative;overflow:hidden;border:1px solid var(--line);box-shadow:0 0 24px rgba(57,255,136,.15) inset}
+#map{display:block;width:100%;height:auto}
+.sweep{position:absolute;inset:-100%;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 85%,rgba(57,255,136,.16) 100%);animation:spin 7s linear infinite}
+#mw::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.sweep{animation:none}}
+.gr{stroke:var(--line);stroke-width:.6;opacity:.55}
+.ring{fill:none;stroke:var(--gd);stroke-width:.7;stroke-dasharray:2 5;opacity:.5}
+.land{fill:var(--land);stroke:var(--gd);stroke-width:.8}
+.wat{fill:var(--sea);stroke:var(--gd);stroke-width:.6}
+.lb{fill:none;stroke:var(--gd);stroke-width:1.4;stroke-dasharray:3 6;opacity:.7}
+.lo{fill:none;stroke:var(--r);stroke-width:2.6;filter:url(#gl)}
+.mk circle{fill:var(--sea);stroke:var(--g);stroke-width:2}
+.mk.done circle{fill:var(--g)}
+.mk.now circle{fill:var(--a);stroke:var(--a);filter:url(#gl)}
+.mk text{fill:var(--g);font-size:var(--fs,13px);paint-order:stroke;stroke:var(--bg);stroke-width:3px;cursor:pointer}
+.mk{cursor:pointer}
+.hq rect{fill:var(--sea);stroke:var(--a);stroke-width:2.2}
+.sg{fill:rgba(255,59,59,.25);stroke:var(--r);stroke-width:1.5}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+button{background:var(--panel);color:var(--g);border:1px solid var(--g);font:inherit;letter-spacing:.1em;padding:8px 14px;cursor:pointer}
+button:hover,button:focus-visible{background:var(--g);color:var(--bg);outline:none}
+.grid{display:grid;grid-template-columns:minmax(240px,1fr) 2fr;gap:12px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.box{border:1px solid var(--line);background:var(--panel);padding:12px}
+.box h2{margin:0 0 8px;font:600 13px Orbitron,'Courier New',monospace;letter-spacing:.15em;color:var(--a)}
+.row{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dotted var(--line)}
+.row b{color:#fff;font-weight:400;text-align:right}
+ol{list-style:none;margin:0;padding:0;columns:2 280px;column-gap:16px}
+li{padding:5px 6px;border-bottom:1px dotted var(--line);cursor:pointer;break-inside:avoid}
+li:hover,li:focus-visible{background:rgba(57,255,136,.12);outline:none}
+li.on{background:rgba(255,201,74,.16);color:#fff}
+li.past{color:var(--gd)}
+li[data-h]{opacity:.7;padding:3px 6px}
+.hq.now rect{fill:var(--a)}
+li.skip{cursor:default;color:var(--line)}
+li.skip:hover{background:none}
+li em{display:block;color:var(--gd);font-style:normal;font-size:12px;padding-left:4.2em}
+li b{display:inline-block;width:4.2em;color:var(--a);font-weight:400}
+.fine{color:var(--gd);font-size:11px;margin-top:10px;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>NORAD <span>TRACKS</span> BRONDYKE-COYLE FAMILY</h1><div class="sub">12-MONTH FLIGHT PLAN · TRACK ID SANTA-01</div></div>
+  <div id="st">STANDBY</div>
+</header>
+<main>
+  <div id="mw"><svg id="map" role="img" aria-label="Radar-style map of the 12-month Santa flight plan"></svg><div class="sweep"></div></div>
+  <div class="ctl">
+    <button id="bp">▶ LAUNCH</button>
+    <button id="bb">◀ PREV</button>
+    <button id="bn">NEXT ▶</button>
+    <button id="bv">VIEW: WORLD</button>
+    <button id="bm" aria-pressed="true">♪ MUSIC: ON</button>
+  </div>
+  <div class="grid">
+    <div class="box"><h2>TELEMETRY</h2><div id="tel"></div></div>
+    <div class="box"><h2>FLIGHT PLAN</h2><ol id="list"></ol></div>
+  </div>
+  <div class="fine">FAN-MADE, UNOFFICIAL. COUNTRY STOPS ARE PLOTTED AT APPROXIMATE CENTER POINTS. DISTANCES ARE GREAT-CIRCLE MILES.</div>
+</main>
+<script>
+const S=[
+{m:'DEC',n:'Annandale, Virginia',ll:[38.83,-77.20],t:'Launch from HQ',hq:1},
+{m:'DEC',n:'Eden, Utah',ll:[41.31,-111.83],t:'Christmas with Eric, Katie, Ethan and Tyler'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'JAN',n:'Canaan Valley, West Virginia',ll:[39.03,-79.45],t:'Skiing'},
+{m:'FEB',n:'Annandale, Virginia',ll:[38.83,-77.20],t:'Clara, Dade, Tony and Emily visit',hq:1},
+{m:'MAR',n:'Madison, Wisconsin',ll:[43.07,-89.40],t:'Road trip to see the Brondykes'},
+{m:'MAR',n:'Chicago, Illinois',ll:[41.88,-87.63],t:'Road trip stop'},
+{m:'MAR',n:'Akron, Ohio',ll:[41.08,-81.52],t:'Road trip stop'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'MAY',n:'Los Angeles, California',ll:[34.05,-118.24],t:'Trip 1: Mother’s Day Getaway',apr:1},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'MAY',n:'Los Angeles, California',ll:[34.05,-118.24],t:'Trip 2: Family visit with Uncle D and Aunty C, plus a mini reunion with Stacy’s “Cali Crew”'},
+{m:'JUN',n:'Annandale, Virginia',ll:[38.83,-77.20],t:'Betsy, Will, Gigi & Bopbop visit',hq:1},
+{m:'JUL',n:'Arden Hills, Minnesota',ll:[45.06,-93.16],t:'Visit the Brondyke cousins'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'AUG',n:'Wrightsville Beach, North Carolina',ll:[34.21,-77.80],t:'Extended Coyle Family Adventure'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'SEP',n:'Luray, Virginia',ll:[38.66,-78.46]},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'OCT',n:'Colombia',ll:[4.6,-74.1],t:'Phil’s solo trip'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'OCT',n:'Door County, Wisconsin',ll:[45.00,-87.30],t:'With the Brondyke Family'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'NOV',n:'Colombia',ll:[4.6,-74.1],t:'Phil’s solo trip'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'NOV',n:'Sierra Leone',ll:[8.46,-12.2],t:'Phil’s solo trip'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'NOV',n:'Germany',ll:[51.0,10.2],t:'Phil’s solo trip'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'DEC',n:'Eden, Utah',ll:[41.31,-111.83],t:'Christmas with the Utah Coyles, round 2!'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],t:'Mission complete: home at HQ',hq:1}
+];
+const N=S.length;
+const L={
+na:[-125,49,-124.5,46,-124,42,-123.8,39.5,-122.5,37.5,-121.5,36.3,-120.6,34.6,-118.4,33.8,-117.2,32.6,-115,30,-112.5,26.5,-110,23,-109,24.5,-111,27.5,-112.8,31,-109,26.5,-106,23,-105.3,20.5,-103.5,18.5,-101,17.3,-97,15.8,-94,16.2,-92,14.5,-90,13.8,-87.5,13,-85.7,11.2,-84,9.6,-82.9,8.3,-80,7.4,-77.5,8.5,-79,9.5,-82.5,9.5,-83.5,10.9,-83.3,12.5,-83.8,15,-86,15.9,-88.5,15.9,-88.2,17.5,-87,21.5,-90.4,21,-90.6,19.4,-92,18.5,-94.5,18.2,-96.2,19,-97.5,22,-97.3,25.8,-97.2,27.5,-95,29,-93.8,29.7,-90.5,29.1,-89.2,29.1,-89.5,30.3,-87.5,30.3,-85.5,29.7,-84,30,-82.8,28.5,-82.6,27,-81.8,26,-80.5,25.2,-80.1,26.8,-80.8,28.5,-81.4,30.5,-80.5,32.2,-78.5,33.8,-76.5,34.7,-75.5,35.3,-75.8,37,-75.2,38.4,-74,39.5,-74,40.5,-72,41,-70,41.7,-70.7,43,-68.5,44.3,-67,44.8,-66,45.2,-64.5,44,-61,45.3,-60,46.5,-62,46.4,-64,48,-66,49,-61,50.2,-57,51.5,-56,53,-60,55,-62,58,-62,70,-130,70,-130,55],
+sa:[-77.5,8.5,-75.5,10.5,-74,11.2,-72,12,-71.3,11,-70,12.2,-68,10.5,-64,10.6,-62,10.7,-60,8.5,-57,6,-54,5.8,-51.5,4.2,-50,1,-48,-1,-44.5,-2.5,-40,-3,-35.2,-5.5,-35,-8,-37,-12,-39,-17,-45,-23,-60,-40,-72,-40,-71,-18,-76,-14,-79,-8,-81,-4.5,-80,-2,-80,1,-78.5,2,-77.5,4,-77.3,7,-78,8.3],
+af:[-5.5,36,-9.5,32,-13,27.5,-16,23,-17,20.5,-16.5,16,-17.5,14.7,-16.7,12.5,-15,10.9,-14.8,10,-13.3,8.5,-11.5,6.9,-9.5,5.5,-7.5,4.4,-4,5.2,-2,4.8,0,5.7,3,6.3,5,6,6,4.3,8.5,4.5,9.7,3.8,9.7,2,9,-1,11.5,-4,12,-6,13.5,-8,40,-8,40,32,32,31.2,20,31,10.5,34,10,37,3,36.8,-1.5,35.3],
+eu:[-5.5,36.1,-9,37,-9.5,39,-9,43,-8,43.7,-2,43.5,-1.2,44.7,-1.5,46,-4.5,48,-3,48.8,-1.5,48.7,-1.5,49.7,1.5,50.8,3.5,51.4,4.5,52.5,5,53.3,8,53.7,8.5,55.5,8.2,57,10.5,57.7,10.2,56.5,9.8,55,10.8,54.5,14,54,18,54.8,20,54.5,22,58,40,70,40,36,28,36.5,26,40,20,40,19.5,41.5,19,42,15,44,13.7,45.6,12.3,45.4,12.5,44,14,42.8,16,41.9,18.5,40.1,17,40.4,16.5,38.5,15.6,40,12,41.8,10.5,43,9,44.3,8,43.8,6,43.1,3.1,43.2,3.2,41.9,0.9,41,-0.3,39.5,0,38.7,-2,36.8],
+gb:[-5.7,50,-3,50.6,1.4,51.2,1.7,52.7,0.2,53.5,-1.5,55,-2,56,-3,56,-1.8,57.5,-3.5,58.6,-5,58.6,-6,57,-5.5,56,-5,54.8,-3,54.8,-3,53.5,-4.5,53.3,-4.2,52,-5.3,51.8,-3,51.4,-4.5,51],
+ie:[-10,51.8,-8,51.6,-6,52.2,-6,54,-5.6,54.7,-8,55.2,-10,54,-9.8,52.5],
+cu:[-85,21.9,-82,23,-78,22.5,-74.2,20.3,-77,19.9,-80,21.8,-84,21.8],
+hi:[-74.4,18.5,-72,19.8,-69.5,19.2,-68.4,18.5,-71,17.8]};
+const W=[
+[-94.5,58,-91,57.2,-87,55.8,-82.5,55,-82,52.8,-80.5,51.4,-79.5,52.5,-79,54.5,-77,56,-76,58,-76,62,-95,62],
+[-87.8,41.7,-87.2,41.7,-86.5,42.3,-86.3,43.5,-86.2,44.7,-85.5,45.2,-85,45.7,-86.5,45.8,-87.5,45.1,-88,44.5,-87.5,44,-87.7,42.5],
+[-92,46.7,-90.5,46.6,-88.5,47.4,-87,46.5,-85,46.8,-84.6,47.8,-86.5,48.7,-88.3,48.3,-90,48,-91.5,47],
+[-84.5,45.8,-83.5,46,-82,45.5,-81.5,44.5,-81.7,43.5,-82.5,43.2,-83.5,44,-83.3,45],
+[-83.4,41.7,-82.5,41.4,-81,41.8,-79,42.7,-79.2,42.9,-80.5,42.5,-82.4,42.1],
+[-79.8,43.3,-79,43.6,-77,43.4,-76.2,43.6,-76.5,44,-78,43.9]];
+const V={w:{o0:-128,o1:20,a0:-8,a1:58,gs:10},u:{o0:-122,o1:-72,a0:30,a1:48,gs:5}};
+const C=Math.PI/180,svg=document.getElementById('map');
+let vk='w',k,H,P,cx,lens=[],legs=[],prog=0,playing=true,last=0,unit=0;
+const mi=(a,b)=>{const d=(b[0]-a[0])*C,e=(b[1]-a[1])*C,x=Math.sin(d/2)**2+Math.cos(a[0]*C)*Math.cos(b[0]*C)*Math.sin(e/2)**2;return 7917.6*Math.asin(Math.sqrt(x))};
+const LM=[];let TOT=0;for(let i=0;i<N-1;i++){LM[i]=mi(S[i].ll,S[i+1].ll);TOT+=LM[i]}
+function setup(){const v=V[vk],mid=(v.a0+v.a1)/2;cx=Math.cos(mid*C);k=1000/((v.o1-v.o0)*cx);H=(v.a1-v.a0)*k;P=(la,lo)=>[(lo-v.o0)*cx*k,(v.a1-la)*k]}
+function poly(a,c){let d='';for(let i=0;i<a.length;i+=2){const p=P(a[i+1],a[i]);d+=(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}return '<path d="'+d+'Z" class="'+c+'"/>'}
+function render(){
+  setup();const v=V[vk],u=vk=='u';
+  let h='<defs><filter id="gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="1000" height="'+H+'" fill="var(--sea)"/>';
+  for(let lo=Math.ceil(v.o0/v.gs)*v.gs;lo<=v.o1;lo+=v.gs){const x=P(0,lo)[0].toFixed(1);h+='<line class="gr" x1="'+x+'" x2="'+x+'" y1="0" y2="'+H+'"/>'}
+  for(let la=Math.ceil(v.a0/v.gs)*v.gs;la<=v.a1;la+=v.gs){const y=P(la,0)[1].toFixed(1);h+='<line class="gr" x1="0" x2="1000" y1="'+y+'" y2="'+y+'"/>'}
+  for(const key in L)h+=poly(L[key],'land');
+  W.forEach(w=>h+=poly(w,'wat'));
+  const q=P(38.83,-77.2);
+  for(let i=1;i<=8;i++)h+='<circle class="ring" cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i*k*(u?5:12)).toFixed(1)+'"/>';
+  const pp=S.map(s=>P(s.ll[0],s.ll[1]));
+  let lb='',lo2='';legs=[];
+  for(let i=0;i<N-1;i++){
+    const a=pp[i],b=pp[i+1],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],f=.2;
+    const d='M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'Q'+(mx-dy*f).toFixed(1)+' '+(my+dx*f).toFixed(1)+' '+b[0].toFixed(1)+' '+b[1].toFixed(1);
+    lb+='<path class="lb" d="'+d+'"/>';lo2+='<path class="lo" d="'+d+'" stroke-dasharray="0 9999"/>'}
+  h+=lb+lo2;
+  const grp={};S.forEach((s,i)=>{const id=s.ll.join();(grp[id]=grp[id]||[]).push(i)});
+  const fs=u?16:13;
+  for(const id in grp){
+    const ix=grp[id],s=S[ix[0]],p=pp[ix[0]],lab=u||s.ll[1]<-100||s.ll[1]>-60;
+    h+='<g class="mk'+(s.hq?' hq':'')+'" data-i="'+ix.join(',')+'" style="--fs:'+fs+'px">';
+    h+=s.hq?'<rect x="'+(p[0]-7)+'" y="'+(p[1]-7)+'" width="14" height="14"/>':'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(u?7:5)+'"/>';
+    if(lab)h+='<text x="'+(p[0]+11).toFixed(1)+'" y="'+(p[1]-9).toFixed(1)+'">'+(s.hq?'':ix.map(j=>j+1).join('/')+' ')+s.n.split(',')[0].toUpperCase()+(s.hq?' (HQ)':'')+'</text>';
+    h+='</g>'}
+  h+='<g id="sn"><circle class="sg" r="15"/><text text-anchor="middle" dy="7" font-size="20">🛷</text></g>';
+  svg.setAttribute('viewBox','0 0 1000 '+H.toFixed(1));svg.innerHTML=h;
+  legs=[...svg.querySelectorAll('.lb')];const ov=[...svg.querySelectorAll('.lo')];
+  lens=legs.map(p=>p.getTotalLength());svg._ov=ov;
+  svg.querySelectorAll('.mk').forEach(g=>g.addEventListener('click',()=>go(+g.dataset.i.split(',')[0])));
+  upd()}
+const $=id=>document.getElementById(id);
+function upd(){
+  const i=Math.min(Math.floor(prog),N-2),f=Math.min(prog-i,1),reached=Math.floor(prog+1e-6);
+  if(lens.length){const pt=legs[i].getPointAtLength(lens[i]*f);$('sn').setAttribute('transform','translate('+pt.x.toFixed(1)+' '+pt.y.toFixed(1)+')');
+    svg._ov.forEach((p,j)=>{const l=lens[j];p.setAttribute('stroke-dasharray',(j<i?l:j==i?l*f:0)+' 9999')});
+    svg.querySelectorAll('.mk').forEach(g=>{const ix=g.dataset.i.split(',').map(Number);g.classList.toggle('done',ix.some(x=>x<reached));g.classList.toggle('now',ix.includes(reached))})}
+  let flown=0;for(let j=0;j<i;j++)flown+=LM[j];flown+=LM[i]*f;
+  const end=prog>=N-1,hold=!playing&&Math.abs(prog-Math.round(prog))<.001;
+  $('st').textContent=end?'MISSION COMPLETE':playing?'● IN FLIGHT':hold?'ON STATION':'HOLDING';
+  $('st').style.color=end?'var(--a)':playing?'var(--r)':'var(--g)';
+  const nx=S[Math.min(reached+1,N-1)];
+  $('tel').innerHTML=[['LAST FIX',S[reached].m+' · '+S[reached].n],['NEXT FIX',end?'—':nx.m+' · '+nx.n],['STOP',(reached+1)+' / '+N],['THIS LEG',end?'—':Math.round(LM[i]).toLocaleString()+' MI'],['FLOWN',Math.round(flown).toLocaleString()+' MI'],['PLAN TOTAL',Math.round(TOT).toLocaleString()+' MI'],['REINDEER','NOMINAL'],['COOKIE LEVEL','ADEQUATE']].map(r=>'<div class="row"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>').join('');
+  document.querySelectorAll('#list li[data-i]').forEach(li=>{const x=+li.dataset.i;li.className=x==reached?'on':x<reached?'past':''});
+  $('bp').textContent=playing?'❚❚ HOLD':'▶ '+(end?'REPLAY':'LAUNCH')}
+function go(j){prog=Math.max(0,Math.min(N-1,j));playing=false;upd()}
+$('list').innerHTML=S.map((s,i)=>s.hq&&s.m!='FEB'&&s.m!='JUN'?'':(s.apr?'<li class="skip"><b>APR</b> NO FLIGHT PLAN FILED</li>':'')+'<li tabindex="0" data-i="'+i+'"'+(s.h?' data-h="1"':'')+'><b>'+s.m+'</b>'+s.n+(s.t&&!s.h?'<em>'+s.t+'</em>':'')+'</li>').join('');
+document.querySelectorAll('#list li[data-i]').forEach(li=>{const f=()=>go(+li.dataset.i);li.onclick=f;li.onkeydown=e=>{if(e.key=='Enter'||e.key==' '){e.preventDefault();f()}}});
+$('bp').onclick=()=>{if(prog>=N-1)prog=0;playing=!playing;upd()};
+$('bn').onclick=()=>go(Math.floor(prog+1e-6)+1);
+$('bb').onclick=()=>go(Math.ceil(prog-1e-6)-1);
+$('bv').onclick=()=>{vk=vk=='w'?'u':'w';$('bv').textContent='VIEW: '+(vk=='w'?'WORLD':'U.S. SECTOR');render()};
+function frame(t){if(playing){prog+=(t-(last||t))/2400;if(prog>=N-1){prog=N-1;playing=false}}last=t;upd();requestAnimationFrame(frame)}
+/* Jingle Bells (public domain) played as a synthesized piano */
+const ND={C:0,D:2,E:4,F:5,G:7},Q=.32;
+const A=[['E',1],['E',1],['E',2],['E',1],['E',1],['E',2],['E',1],['G',1],['C',1.5],['D',.5],['E',4],['F',1],['F',1],['F',1.5],['F',.5],['F',1],['E',1],['E',1],['E',.5],['E',.5],['E',1],['D',1],['D',1],['E',1],['D',2],['G',2]];
+const B=[['E',1],['E',1],['E',2],['E',1],['E',1],['E',2],['E',1],['G',1],['C',1.5],['D',.5],['E',4],['F',1],['F',1],['F',1.5],['F',.5],['F',1],['E',1],['E',1],['E',.5],['E',.5],['G',1],['G',1],['F',1],['D',1],['C',4],['R',2]];
+const MEL=A.concat(B);
+let ac,mgn,tmr,mxi=0,nt=0,mon=false;
+function bell(f,t,d){
+  [[1,.55],[2,.28],[3,.14],[4,.07],[5,.03]].forEach(p=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f*p[0];
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(p[1],t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+Math.min(d*Q*1.2+.9,2.2)/(1+p[0]*.3));
+    o.connect(g);g.connect(mgn);o.start(t);o.stop(t+2.6)})}
+function tick(t){const len=ac.sampleRate*.05|0,b=ac.createBuffer(1,len,ac.sampleRate),x=b.getChannelData(0);for(let i=0;i<len;i++)x[i]=(Math.random()*2-1)*(1-i/len);
+  const s=ac.createBufferSource(),h=ac.createBiquadFilter(),g=ac.createGain();s.buffer=b;h.type='highpass';h.frequency.value=6500;g.gain.value=.05;s.connect(h);h.connect(g);g.connect(mgn);s.start(t)}
+function sched(){while(nt<ac.currentTime+.4){const n=MEL[mxi][0],d=MEL[mxi][1];
+  if(n!='R'){bell(261.63*Math.pow(2,ND[n]/12),nt,d)}
+  nt+=d*Q;mxi=(mxi+1)%MEL.length}}
+function musicOn(){if(!ac){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;ac=new C();mgn=ac.createGain();mgn.gain.value=.15;mgn.connect(ac.destination)}
+  ac.resume();mon=true;nt=ac.currentTime+.1;tmr=setInterval(sched,100)}
+function musicOff(){mon=false;clearInterval(tmr);if(ac)ac.suspend()}
+$('bm').onclick=()=>{mon?musicOff():musicOn();$('bm').textContent='♪ MUSIC: '+(mon?'ON':'OFF');$('bm').setAttribute('aria-pressed',mon)};
+musicOn();$('bm').textContent='♪ MUSIC: ON';$('bm').setAttribute('aria-pressed','true');
+if(ac&&ac.state!='running'){const EV=['pointerdown','keydown','touchend'],un=e=>{if(e.target.closest&&e.target.closest('#bm'))return;if(mon&&ac)ac.resume();EV.forEach(t=>document.removeEventListener(t,un,true))};EV.forEach(t=>document.addEventListener(t,un,true))}
+render();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
