@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>NORAD Brondyke Tracker – Flight Plan</title>
+<title>NORAD Santa Tracker – Travel Plan</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
 <style>
@@ -60,7 +60,7 @@ li b{display:inline-block;width:4.2em;color:var(--a);font-weight:400}
 </head>
 <body>
 <header>
-  <div><h1>NORAD <span>TRACKS</span> BRONDYKE-COYLE FAMILY</h1><div class="sub">12-MONTH FLIGHT PLAN · TRACK ID BANANAHOUSE-4011</div></div>
+  <div><h1>NORAD <span>TRACKS</span> BRONDYKE-COYLE FAMILY</h1><div class="sub">12-MONTH TRAVEL PLAN · TRACK ID //BANANAHOUSE-004011//</div></div>
   <div id="st">STANDBY</div>
 </header>
 <main>
@@ -76,36 +76,47 @@ li b{display:inline-block;width:4.2em;color:var(--a);font-weight:400}
     <div class="box"><h2>TELEMETRY</h2><div id="tel"></div></div>
     <div class="box"><h2>FLIGHT PLAN</h2><ol id="list"></ol></div>
   </div>
-  <div class="fine">STACY-MADE, UNOFFICIAL. COUNTRY STOPS ARE PLOTTED AT APPROXIMATE CENTER POINTS. DISTANCES ARE GREAT-CIRCLE MILES.</div>
+  <div class="fine">STACY.AI-MADE, UNOFFICIAL AND NOT ACTUALLY ASSOCIATED WITH NORAD. COUNTRY STOPS ARE PLOTTED AT APPROXIMATE CENTER POINTS. DISTANCES ARE GREAT-CIRCLE MILES.</div>
 </main>
 <script>
 const S=[
 {m:'DEC',n:'Annandale, Virginia',ll:[38.83,-77.20],t:'Launch from HQ',hq:1},
 {m:'DEC',n:'Eden, Utah',ll:[41.31,-111.83],t:'Christmas with Eric, Katie, Ethan and Tyler'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'JAN',n:'Harrisonburg, Virginia',ll:[38.45,-78.87],t:'Skiing at Massanutten'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
 {m:'JAN',n:'Canaan Valley, West Virginia',ll:[39.03,-79.45],t:'Skiing'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'JAN',n:'Mexico City, Mexico',ll:[19.43,-99.13],t:'Phil work trip'},
 {m:'FEB',n:'Annandale, Virginia',ll:[38.83,-77.20],t:'Clara, Dade, Tony and Emily visit',hq:1},
 {m:'MAR',n:'Madison, Wisconsin',ll:[43.07,-89.40],t:'Road trip to see the Brondykes'},
 {m:'MAR',n:'Chicago, Illinois',ll:[41.88,-87.63],t:'Road trip stop'},
 {m:'MAR',n:'Akron, Ohio',ll:[41.08,-81.52],t:'Road trip stop'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
-{m:'MAY',n:'Los Angeles, California',ll:[34.05,-118.24],t:'Trip 1: Mother’s Day Getaway',apr:1},
+{m:'APR',n:'Miami, Florida',ll:[25.76,-80.19],t:'Phil work trip'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'MAY',n:'San Diego, California',ll:[32.72,-117.16],t:'Trip 1: Mother’s Day Getaway'},
+{m:'MAY',n:'Los Angeles, California',ll:[34.05,-118.24],t:'Trip 1: Mother’s Day Getaway'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
 {m:'MAY',n:'Los Angeles, California',ll:[34.05,-118.24],t:'Trip 2: Family visit with Uncle D and Aunty C, plus a mini reunion with Stacy’s “Cali Crew”'},
 {m:'JUN',n:'Annandale, Virginia',ll:[38.83,-77.20],t:'Betsy, Will, Gigi & Bopbop visit',hq:1},
 {m:'JUL',n:'Arden Hills, Minnesota',ll:[45.06,-93.16],t:'Visit the Brondyke cousins'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
+{m:'JUL',n:'Mexico City, Mexico',ll:[19.43,-99.13],t:'Phil work trip'},
+{m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
 {m:'AUG',n:'Wrightsville Beach, North Carolina',ll:[34.21,-77.80],t:'Extended Coyle Family Adventure'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
 {m:'SEP',n:'Luray, Virginia',ll:[38.66,-78.46]},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
-{m:'OCT',n:'Colombia',ll:[4.6,-74.1],t:'Phil’s solo trip'},
+{m:'OCT',n:'Bogotá, Colombia',ll:[4.6,-74.1],t:'Phil work trip'},
+{m:'OCT',n:'Miami, Florida',ll:[25.76,-80.19],t:'Phil work trip'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
 {m:'OCT',n:'Door County, Wisconsin',ll:[45.00,-87.30],t:'With the Brondyke Family'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
-{m:'NOV',n:'Colombia',ll:[4.6,-74.1],t:'Phil’s solo trip'},
+{m:'NOV',n:'Bogotá, Colombia',ll:[4.6,-74.1],t:'Phil work trip'},
+{m:'NOV',n:'Miami, Florida',ll:[25.76,-80.19],t:'Phil work trip'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
-{m:'NOV',n:'Sierra Leone',ll:[8.46,-12.2],t:'Phil’s solo trip'},
+{m:'NOV',n:'Sierra Leone',ll:[8.46,-12.2],t:'Phil and Sid’s trip to stay with Uncle Donald'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
 {m:'NOV',n:'Germany',ll:[51.0,10.2],t:'Phil’s solo trip'},
 {m:'↩',n:'Annandale, Virginia',ll:[38.83,-77.20],hq:1,h:1},
@@ -155,7 +166,7 @@ function render(){
   const grp={};S.forEach((s,i)=>{const id=s.ll.join();(grp[id]=grp[id]||[]).push(i)});
   const fs=u?16:13;
   for(const id in grp){
-    const ix=grp[id],s=S[ix[0]],p=pp[ix[0]],lab=u||s.ll[1]<-100||s.ll[1]>-60;
+    const ix=grp[id],s=S[ix[0]],p=pp[ix[0]],lab=u||s.ll[1]<-95||s.ll[1]>-60;
     h+='<g class="mk'+(s.hq?' hq':'')+'" data-i="'+ix.join(',')+'" style="--fs:'+fs+'px">';
     h+=s.hq?'<rect x="'+(p[0]-7)+'" y="'+(p[1]-7)+'" width="14" height="14"/>':'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(u?7:5)+'"/>';
     if(lab)h+='<text x="'+(p[0]+11).toFixed(1)+'" y="'+(p[1]-9).toFixed(1)+'">'+(s.hq?'':ix.map(j=>j+1).join('/')+' ')+s.n.split(',')[0].toUpperCase()+(s.hq?' (HQ)':'')+'</text>';
